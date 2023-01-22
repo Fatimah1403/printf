@@ -5,86 +5,46 @@
 #include <unistd.h>
 
 /**
- * cleanup - Peforms cleanup operations for _printf.
- * @list: A va_list of arguments provided to _printf.
- * @output: A buffer_t struct.
+ * _printf - is a function that selects the correct function to print.
+ * @format: identifier to look for.
+ * Return: the length of the string.
  */
-void cleanup(va_list list, buffer_t *output)
+int _printf(const char * const format, ...)
 {
-	va_end(list);
-	write(1, output->start, output->len)
-	free_buffer(output);
-}
-/**
- * run_printf - Reads through the format string for _printf.
- * @format: Character string to print - may contain directives.
- * @output: A buffer_t struct containing a buffer.
- * @list: A va_list of arguments.
- *
- * Return: The number of characters stored to output.
- */
-int run_printf(const char *format, va_list list, buffer_t *output)
-{
-	int i, width, prec, ret = o;
-	char tmp;
-	unsigned char flags, len;
-	unsigned int (*f)(va_list, buffer_t *, unsigned char,
-			int, int, unsigned char);
+	convert_match m[] = {
+		{"%s", printf_string}, {"%c", printf_char},
+		{"%%", printf_37},
+		{"%i", printf_int}, {"%d", printf_dec}, {"%r", printf_srev},
+		{"%R", printf_rot13}, {"%b", printf_bin}, {"%u", printf_unsigned},
+		{"%o", printf_oct}, {"%x", printf_hex}, {"%X", printf_HEX},
+		{"%S", printf_exclusive_string}, {"%p", printf_pointer}
+	};
 
-	for (i = 0; *(format + i); i++)
+	va_list args;
+	int i = 0, j, len = 0;
+
+	va_start(args, format);
+	if (format == NULL || (format[0] == '%' && format[1] == '\0'))
+		return (-1);
+
+Here:
+	while (format[i] != '\0')
 	{
-		len = 0;
-
-		if (*(format + i) == '%')
+		j = 13;
+		while (j >= 0)
 		{
-			tmp = 0;
-			flags = handle_flags(format + i + 1, &tmp);
-			width = handle_width(list, format + i + tmp + 1, &tmp);
-			prec = handle_precision(list, format + i + tmp + i,
-					&tmp);
-			len = handle_length(format + i + tmp + 1, &tmp);
-			f = handle_specifiers(format + i + tmp + 1);
-			if (f != NULL)
+			if (m[j].id[0] == format[i] && m[j].id[1] == format[i + 1])
 			{
-				i += tmp + 1;
-				ret += f(list, output, flags, width, prec, len);
-				continue;
+				len += m[j].f(args);
+				i = i + 2;
+				goto Here;
 			}
-			else if (*(format + i + tmp + 1) == '\0')
-			{
-				ret = -1;
-				break;
-			}
+			j--;
 		}
-		ret += _memcpy(output, (format + i), 1);
-		i += (len != 0) ? 1 : 0;
+		_putchar(format[i]);
+		len++;
+		i++;
 	}
-	cleanup(list, output);
-	return (ret);
-}
-
-
-/**
- * _printf - function my printf
- * @format: string whit format to print
- *
- * Return: number of chars that print
- */
-int _printf(const char *format, ...)
-{
-	va_list list;
-	int length;
-	buffer_t *output;
-
-	if (format == NULL)
-		return (-1);
-	output = init_buffer();
-	if (output == NULL)
-		return (-1);
-
-	va_start(list, format);
-
-	length = run_printf(format, list, output);
-	va_end(list);
-	return (length);
+	va_end(args);
+	return (len);
 }

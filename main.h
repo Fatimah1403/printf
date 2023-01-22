@@ -5,32 +5,22 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <stdio.h>
 
 /**
- * struct buffer_s - A new type defining a buffer struct.
- * @buffer: A pointer to a character array.
- * @start: A pointer to the start of buffer.
- * @len: The length of the string stored in buffer.
+ * struct format - match the conversion specifiers for printf
+ * @id: type char pointer of the specifier i.e (l, h) for (d, i, u, o, x, X)
+ * @f: type pointer to function for the conversion specifier
+ *
  */
-typeof struct buffer_s
-{
-	char *buffer;
-	char *start;
-	unsigned int len;
-} buffer_t;
 
-/**
- * struct converter_s - A new type defining a converter struct.
- * @specifier: A character representing a conversion specifier.
- * @func: A pointer to a conversion function corresponding to specifier.
- */
-typeof struct converter_s
+typedef struct format
 {
-	unsigned char specifier;
-	unsigned int (*func)(va_list, buffer_t *,
-			unsigned char, int, int, unsigned char);
-} converter_t;
+	char *id;
+	int (*f)();
+} convert_match;
 
+int _putchar(char c);
 int _printf(const char *format, ...);
 
 #endif
