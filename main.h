@@ -8,19 +8,29 @@
 #include <stdio.h>
 
 /**
- * struct format - match the conversion specifiers for printf
- * @id: type char pointer of the specifier i.e (l, h) for (d, i, u, o, x, X)
- * @f: type pointer to function for the conversion specifier
+ * struct fmt - Struct op
  *
+ * @fmt: The format.
+ * @fn: The function associated.
  */
-
-typedef struct format
+struct fmt
 {
-	char *id;
-	int (*f)();
-} convert_match;
+	char fmt;
+	int (*fn)(va_list, char[], int, int, int, int);
+};
+
+
+/**
+ * typedef struct fmt fmt_t - Struct op
+ *
+ * @fmt: The format.
+ * @fm_t: The function associated.
+ */
+typedef struct fmt fmt_t;
 
 int _putchar(char c);
 int _printf(const char *format, ...);
+int handle_print(const char *fmt, int *i,
+va_list list, char buffer[], int flags, int width, int precision, int size);
 
 #endif
